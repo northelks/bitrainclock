@@ -6,7 +6,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-double numStep = 15.0;
+// size of number
+double bitsize = 15.0;
+// current time
+DateTime now;
 
 void main() {
   if (Platform.isIOS) {
@@ -56,8 +59,6 @@ class BitClockWorld extends StatefulWidget {
 }
 
 class _BitClockWorldState extends State<BitClockWorld> {
-  int tick = 0;
-
   double scrh = 0;
   double scrw = 0;
 
@@ -74,18 +75,22 @@ class _BitClockWorldState extends State<BitClockWorld> {
     super.initState();
 
     void runworld() {
+      now = DateTime.now();
+
       int sec = 0;
-      timer = Timer.periodic(Duration(milliseconds: 100), (Timer timer) {
-        if (sec != DateTime.now().second) {
-          sec = DateTime.now().second;
+      // run global tick
+      timer = Timer.periodic(Duration(milliseconds: 100), (_) {
+        if (sec != now.second) {
+          sec = now.second;
           dirty = true;
         }
 
         update();
-        setState(() => tick = timer.tick);
+        setState(() => now = DateTime.now());
       });
 
-      // Future.delayed(Duration(seconds: 20), () => timer.cancel());
+      // for dev test
+      // Future.delayed(Duration(seconds: 17), () => timer.cancel());
     }
 
     Future.delayed(Duration(seconds: 2), () {
@@ -97,16 +102,19 @@ class _BitClockWorldState extends State<BitClockWorld> {
     });
   }
 
+  // update world
   void update() {
-    int randlen() => 7 + Random().nextInt(20 - 7);
     double yi() => Random().nextInt(10) * 1.0;
 
     if (world.isEmpty) {
+      // build left one column-flow to "show" time number
       world..addAll(BitPointMatrix.buildFlow(0.0, yi(), 8));
+      // build time numbers
       world..addAll(BitPointRealTime.build(scrw, scrh));
     }
 
     if (dirty && !lock) {
+      // time is running and we need to render new second and all time numbers
       for (var i = 0; i < world.length; i++) {
         if (world[i].isTimeNum) world.removeAt(i);
       }
@@ -114,9 +122,10 @@ class _BitClockWorldState extends State<BitClockWorld> {
       dirty = false;
     }
 
+    // keep world populated with required count of the numbers
     if (world.length < 1200) {
       for (var i = 0; i < (scrw / 10).floor(); i++) {
-        int len = randlen();
+        int len = 7 + Random().nextInt(20 - 7);
         world..addAll(BitPointMatrix.buildFlow(5.0 + (i * 15), yi() + len * 2, len));
       }
     }
@@ -124,13 +133,17 @@ class _BitClockWorldState extends State<BitClockWorld> {
     for (var i = 0; i < world.length; i++) {
       if (world[i].isTimeNum) {
         if (world[7].y >= world[i].y) {
+          // show time number by the left first column-flow
           world[i].isLight = true;
         }
 
         continue;
       }
 
-      world[i].y += numStep;
+      // move flow
+      world[i].y += bitsize;
+
+      // remove number which came out of the screen area
       if (world[i].y > scrh) {
         world.removeAt(i);
         lock = false;
@@ -145,8 +158,8 @@ class _BitClockWorldState extends State<BitClockWorld> {
     scrh = size.height;
     scrw = size.width;
 
-    // the magic o_O
-    if (scrw != 667) numStep = 15.0 * scrw / 667;
+    // yeah, the magic o_O
+    if (scrw != 667) bitsize = 15.0 * scrw / 667;
 
     return Stack(children: [
       Center(
@@ -159,6 +172,7 @@ class _BitClockWorldState extends State<BitClockWorld> {
       if (!splash)
         ...world.map((point) {
           int value = Random().nextInt(10);
+          // one number too thin
           if (value == 1) value = 2;
           int opct = 3 + Random().nextInt(7 - 3);
 
@@ -214,7 +228,7 @@ class BitPointMatrix {
     return List<BitPoint>.generate(len, (i) {
       BitPoint point = BitPoint();
       point.x = x * 1.25;
-      point.y = (i - 0.5 - yi) * numStep;
+      point.y = (i - 0.5 - yi) * bitsize;
       point.isLast = i == len - 1;
       point.size = len;
 
@@ -225,63 +239,51 @@ class BitPointMatrix {
 
 class BitPointRealTime {
   static List<BitPoint> build(double scrw, double scrh) {
-    int timePoint1Num;
-    int timePoint2Num;
-    int timePoint3Num;
-    int timePoint4Num;
-    int timePoint5Num;
-    int timePoint6Num;
+    int timePointH1;
+    int timePointH2;
+    int timePointM1;
+    int timePointM2;
+    int timePointS1;
+    int timePointS2;
 
-    String timePoint12 = DateTime.now().hour.toString();
-    if (timePoint12.length == 2) {
-      timePoint1Num = int.tryParse(timePoint12.substring(0, 1));
-      timePoint2Num = int.tryParse(timePoint12.substring(1, 2));
+    if (now.hour <= 9) {
+      timePointH1 = 0;
+      timePointH2 = now.hour;
     } else {
-      timePoint1Num = 0;
-      timePoint2Num = int.tryParse(timePoint12);
+      timePointH1 = int.tryParse(now.hour.toString().substring(0, 1));
+      timePointH2 = int.tryParse(now.hour.toString().substring(1, 2));
     }
 
-    String timePoint34 = DateTime.now().minute.toString();
-    if (timePoint34.length == 2) {
-      timePoint3Num = int.tryParse(timePoint34.substring(0, 1));
-      timePoint4Num = int.tryParse(timePoint34.substring(1, 2));
+    if (now.minute <= 9) {
+      timePointM1 = 0;
+      timePointM2 = now.minute;
     } else {
-      timePoint3Num = 0;
-      timePoint4Num = int.tryParse(timePoint34);
+      timePointM1 = int.tryParse(now.minute.toString().substring(0, 1));
+      timePointM2 = int.tryParse(now.minute.toString().substring(1, 2));
     }
 
-    String timePoint56 = DateTime.now().second.toString();
-    if (timePoint56.length == 2) {
-      timePoint5Num = int.tryParse(timePoint56.substring(0, 1));
-      timePoint6Num = int.tryParse(timePoint56.substring(1, 2));
+    if (now.second <= 9) {
+      timePointS1 = 0;
+      timePointS2 = now.second;
     } else {
-      timePoint5Num = 0;
-      timePoint6Num = int.tryParse(timePoint56);
+      timePointS1 = int.tryParse(now.second.toString().substring(0, 1));
+      timePointS2 = int.tryParse(now.second.toString().substring(1, 2));
     }
 
-    double cntrh = (scrh / 2) - numStep * 4;
+    double cntrh = (scrh / 2) - bitsize * 4;
 
-    final timePoint1 = BitPointWorldTime.number(timePoint1Num, 20, cntrh);
-    final timePoint2 = BitPointWorldTime.number(timePoint2Num, 40 + numStep * 4, cntrh);
-
-    final delimiter1 = BitPointWorldTime.delimiter((scrw / 2) - numStep * (4 + 4.5), cntrh);
-
-    final timePoint3 = BitPointWorldTime.number(timePoint3Num, (scrw / 2) - numStep * (4 + 3), cntrh);
-    final timePoint4 = BitPointWorldTime.number(timePoint4Num, (scrw / 2) - numStep, cntrh);
-
-    final delimiter2 = BitPointWorldTime.delimiter(scrw - (numStep * 17), cntrh);
-
-    final timePoint5 = BitPointWorldTime.number(timePoint5Num, scrw - ((numStep * 8) + 100), cntrh);
-    final timePoint6 = BitPointWorldTime.number(timePoint6Num, scrw - ((numStep * 4) + 80), cntrh);
-
-    return timePoint1 +
-        timePoint2 +
-        delimiter1 +
-        timePoint3 +
-        timePoint4 +
-        delimiter2 +
-        timePoint5 +
-        timePoint6;
+    return BitPointWorldTime.number(timePointH1, 20, cntrh) +
+        BitPointWorldTime.number(timePointH2, 40 + bitsize * 4, cntrh) +
+        // delimiter
+        BitPointWorldTime.delimiter((scrw / 2) - bitsize * (4 + 4.5), cntrh) +
+        //
+        BitPointWorldTime.number(timePointM1, (scrw / 2) - bitsize * (4 + 3), cntrh) +
+        BitPointWorldTime.number(timePointM2, (scrw / 2) - bitsize, cntrh) +
+        // delimiter
+        BitPointWorldTime.delimiter(scrw - (bitsize * 17), cntrh) +
+        //
+        BitPointWorldTime.number(timePointS1, scrw - ((bitsize * 8) + 100), cntrh) +
+        BitPointWorldTime.number(timePointS2, scrw - ((bitsize * 4) + 80), cntrh);
   }
 }
 
@@ -394,18 +396,18 @@ class BitPointBrush {
         _y = y;
 
   void left(int v) =>
-      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x -= numStep, y: _y, isTimeNum: true)));
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x -= bitsize, y: _y, isTimeNum: true)));
   void right(int v) =>
-      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x += numStep, y: _y, isTimeNum: true)));
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x += bitsize, y: _y, isTimeNum: true)));
   void top(int v) =>
-      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y -= numStep, isTimeNum: true)));
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y -= bitsize, isTimeNum: true)));
   void bottom(int v) =>
-      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y += numStep, isTimeNum: true)));
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y += bitsize, isTimeNum: true)));
 
-  void jumpLeft(int v) => _x -= numStep * v;
-  void jumpRight(int v) => _x += numStep * v;
-  void jumpTop(int v) => _y -= numStep * v;
-  void jumpBottom(int v) => _y += numStep * v;
+  void jumpLeft(int v) => _x -= bitsize * v;
+  void jumpRight(int v) => _x += bitsize * v;
+  void jumpTop(int v) => _y -= bitsize * v;
+  void jumpBottom(int v) => _y += bitsize * v;
 
   List<BitPoint> take() => _buffer;
 }
