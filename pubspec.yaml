@@ -1,0 +1,25 @@
+name: bitclock
+description: Clock challenge FlutterClock
+version: 1.1+1
+homepage: https://github.com/kroppli/bitclock
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.7.4
+
+flutter_icons:
+  image_path: "icon.png" 
+  android: true
+  ios: true
+
+flutter:
+  uses-material-design: true
+  assets:
+    - bitclock.png
+    - icon.png
