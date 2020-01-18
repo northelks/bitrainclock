@@ -1,24 +1,30 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+double numStep = 15.0;
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]).then((_) {
+void main() {
+  if (Platform.isIOS) {
     runApp(BitClock());
-  });
+  } else {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+      runApp(BitClock());
+    });
+  }
 }
 
 class BitClock extends StatefulWidget {
-  static const double NUM_STEP = 15.0;
-
   @override
   _BitClockState createState() => _BitClockState();
 }
@@ -51,8 +57,6 @@ class BitClockWorld extends StatefulWidget {
 
 class _BitClockWorldState extends State<BitClockWorld> {
   int tick = 0;
-  int rowlen = 0;
-  int columnlen = 0;
 
   double scrh = 0;
   double scrw = 0;
@@ -69,18 +73,6 @@ class _BitClockWorldState extends State<BitClockWorld> {
   void initState() {
     super.initState();
 
-    scrh = WidgetsBinding.instance.window.physicalSize.height;
-    scrw = WidgetsBinding.instance.window.physicalSize.width;
-    if (scrh > scrw) {
-      double h = scrw;
-      double w = scrh;
-      scrh = h;
-      scrw = w;
-    }
-
-    rowlen = (scrh / 38).floor();
-    columnlen = (scrw / 28).floor();
-
     void runworld() {
       int sec = 0;
       timer = Timer.periodic(Duration(milliseconds: 100), (Timer timer) {
@@ -93,7 +85,7 @@ class _BitClockWorldState extends State<BitClockWorld> {
         setState(() => tick = timer.tick);
       });
 
-      // Future.delayed(Duration(seconds: 10), () => timer.cancel());
+      // Future.delayed(Duration(seconds: 20), () => timer.cancel());
     }
 
     Future.delayed(Duration(seconds: 2), () {
@@ -110,7 +102,7 @@ class _BitClockWorldState extends State<BitClockWorld> {
     double yi() => Random().nextInt(10) * 1.0;
 
     if (world.isEmpty) {
-      world..addAll(BitPointMatrix.buildFlow(0.0, yi() + 5, 8));
+      world..addAll(BitPointMatrix.buildFlow(0.0, yi(), 8));
       world..addAll(BitPointRealTime.build(scrw, scrh));
     }
 
@@ -123,7 +115,7 @@ class _BitClockWorldState extends State<BitClockWorld> {
     }
 
     if (world.length < 1200) {
-      for (var i = 0; i < columnlen; i++) {
+      for (var i = 0; i < (scrw / 10).floor(); i++) {
         int len = randlen();
         world..addAll(BitPointMatrix.buildFlow(5.0 + (i * 15), yi() + len * 2, len));
       }
@@ -138,8 +130,8 @@ class _BitClockWorldState extends State<BitClockWorld> {
         continue;
       }
 
-      world[i].y += BitClock.NUM_STEP;
-      if (world[i].y > scrh / 2) {
+      world[i].y += numStep;
+      if (world[i].y > scrh) {
         world.removeAt(i);
         lock = false;
       }
@@ -148,6 +140,14 @@ class _BitClockWorldState extends State<BitClockWorld> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
+    scrh = size.height;
+    scrw = size.width;
+
+    // the magic o_O
+    if (scrw != 667) numStep = 15.0 * scrw / 667;
+
     return Stack(children: [
       Center(
         child: AnimatedOpacity(
@@ -214,7 +214,7 @@ class BitPointMatrix {
     return List<BitPoint>.generate(len, (i) {
       BitPoint point = BitPoint();
       point.x = x * 1.25;
-      point.y = (i - 0.5 - yi) * BitClock.NUM_STEP;
+      point.y = (i - 0.5 - yi) * numStep;
       point.isLast = i == len - 1;
       point.size = len;
 
@@ -259,21 +259,20 @@ class BitPointRealTime {
       timePoint6Num = int.tryParse(timePoint56);
     }
 
-    double cntrw = scrw / 4.1;
-    double cntrh = scrh / 6.5;
+    double cntrh = (scrh / 2) - numStep * 4;
 
-    final timePoint1 = BitPointWorldTime.number(timePoint1Num, cntrw - BitClock.NUM_STEP * 21, cntrh);
-    final timePoint2 = BitPointWorldTime.number(timePoint2Num, cntrw - BitClock.NUM_STEP * 15, cntrh);
+    final timePoint1 = BitPointWorldTime.number(timePoint1Num, 20, cntrh);
+    final timePoint2 = BitPointWorldTime.number(timePoint2Num, 40 + numStep * 4, cntrh);
 
-    final delimiter1 = BitPointWorldTime.delimiter(cntrw - BitClock.NUM_STEP * 8, cntrh);
+    final delimiter1 = BitPointWorldTime.delimiter((scrw / 2) - numStep * (4 + 4.5), cntrh);
 
-    final timePoint3 = BitPointWorldTime.number(timePoint3Num, cntrw - BitClock.NUM_STEP * 6, cntrh);
-    final timePoint4 = BitPointWorldTime.number(timePoint4Num, cntrw - BitClock.NUM_STEP * 0.5, cntrh);
+    final timePoint3 = BitPointWorldTime.number(timePoint3Num, (scrw / 2) - numStep * (4 + 3), cntrh);
+    final timePoint4 = BitPointWorldTime.number(timePoint4Num, (scrw / 2) - numStep, cntrh);
 
-    final delimiter2 = BitPointWorldTime.delimiter(cntrw + BitClock.NUM_STEP * 6.5, cntrh);
+    final delimiter2 = BitPointWorldTime.delimiter(scrw - (numStep * 17), cntrh);
 
-    final timePoint5 = BitPointWorldTime.number(timePoint5Num, cntrw + BitClock.NUM_STEP * 9, cntrh);
-    final timePoint6 = BitPointWorldTime.number(timePoint6Num, cntrw + BitClock.NUM_STEP * 14, cntrh);
+    final timePoint5 = BitPointWorldTime.number(timePoint5Num, scrw - ((numStep * 8) + 100), cntrh);
+    final timePoint6 = BitPointWorldTime.number(timePoint6Num, scrw - ((numStep * 4) + 80), cntrh);
 
     return timePoint1 +
         timePoint2 +
@@ -394,19 +393,19 @@ class BitPointBrush {
       : _x = x,
         _y = y;
 
-  void left(int v) => _buffer
-    ..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x -= BitClock.NUM_STEP, y: _y, isTimeNum: true)));
-  void right(int v) => _buffer
-    ..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x += BitClock.NUM_STEP, y: _y, isTimeNum: true)));
-  void top(int v) => _buffer
-    ..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y -= BitClock.NUM_STEP, isTimeNum: true)));
-  void bottom(int v) => _buffer
-    ..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y += BitClock.NUM_STEP, isTimeNum: true)));
+  void left(int v) =>
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x -= numStep, y: _y, isTimeNum: true)));
+  void right(int v) =>
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x += numStep, y: _y, isTimeNum: true)));
+  void top(int v) =>
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y -= numStep, isTimeNum: true)));
+  void bottom(int v) =>
+      _buffer..addAll(List<BitPoint>.generate(v, (i) => BitPoint(x: _x, y: _y += numStep, isTimeNum: true)));
 
-  void jumpLeft(int v) => _x -= BitClock.NUM_STEP * v;
-  void jumpRight(int v) => _x += BitClock.NUM_STEP * v;
-  void jumpTop(int v) => _y -= BitClock.NUM_STEP * v;
-  void jumpBottom(int v) => _y += BitClock.NUM_STEP * v;
+  void jumpLeft(int v) => _x -= numStep * v;
+  void jumpRight(int v) => _x += numStep * v;
+  void jumpTop(int v) => _y -= numStep * v;
+  void jumpBottom(int v) => _y += numStep * v;
 
   List<BitPoint> take() => _buffer;
 }
