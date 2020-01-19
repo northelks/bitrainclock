@@ -1,7 +1,7 @@
-name: bitclock
-description: Clock challenge FlutterClock
-version: 1.1+1
-homepage: https://github.com/kroppli/bitclock
+name: BitrainClock
+description: Clock face UI for FlutterClock contest
+version: 1.1.0+1
+homepage: https://github.com/kroppli/bitrainclock
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -15,17 +15,17 @@ dev_dependencies:
   flutter_native_splash: ^0.1.9
 
 flutter_native_splash:
-  color: "E03333"
+  color: "161616"
   ios: false
   fill: true
 
 flutter_icons:
-  image_path: "icon.png" 
+  image_path: "bitrainclock-icon.png" 
   android: true
   ios: true
 
 flutter:
   uses-material-design: true
   assets:
-    - bitclock.png
-    - icon.png
+    - bitrainclock-icon.png
+    - bitrainclock-label.png

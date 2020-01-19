@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kroppli.bitclock">
+    package="com.kroppli.bitrainclock">
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="bitclock"
+        android:label="BitrainClock"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:icon="@mipmap/ic_launcher">
         <activity

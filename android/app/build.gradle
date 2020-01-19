@@ -37,7 +37,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.kroppli.bitclock"
+        applicationId "com.kroppli.bitrainclock"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()

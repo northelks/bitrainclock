@@ -13,7 +13,7 @@ DateTime now;
 
 void main() {
   if (Platform.isIOS) {
-    runApp(BitClock());
+    runApp(BitrainClock());
   } else {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -22,17 +22,17 @@ void main() {
       DeviceOrientation.landscapeRight,
     ]);
     SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-      runApp(BitClock());
+      runApp(BitrainClock());
     });
   }
 }
 
-class BitClock extends StatefulWidget {
+class BitrainClock extends StatefulWidget {
   @override
-  _BitClockState createState() => _BitClockState();
+  _BitrainClockState createState() => _BitrainClockState();
 }
 
-class _BitClockState extends State<BitClock> {
+class _BitrainClockState extends State<BitrainClock> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,7 +44,7 @@ class _BitClockState extends State<BitClock> {
           child: Center(
             child: AspectRatio(
               aspectRatio: 5 / 3,
-              child: BitClockWorld(),
+              child: BitrainClockWorld(),
             ),
           ),
         ),
@@ -53,12 +53,12 @@ class _BitClockState extends State<BitClock> {
   }
 }
 
-class BitClockWorld extends StatefulWidget {
+class BitrainClockWorld extends StatefulWidget {
   @override
-  _BitClockWorldState createState() => _BitClockWorldState();
+  _BitrainClockWorldState createState() => _BitrainClockWorldState();
 }
 
-class _BitClockWorldState extends State<BitClockWorld> {
+class _BitrainClockWorldState extends State<BitrainClockWorld> {
   double scrh = 0;
   double scrw = 0;
 
@@ -166,7 +166,7 @@ class _BitClockWorldState extends State<BitClockWorld> {
         child: AnimatedOpacity(
           duration: Duration(seconds: 2),
           opacity: splash ? 1.0 : 0.0,
-          child: Image.asset('bitclock.png'),
+          child: Image.asset('bitrainclock-label.png'),
         ),
       ),
       if (!splash)

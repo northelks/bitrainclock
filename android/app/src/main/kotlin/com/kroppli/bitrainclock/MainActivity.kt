@@ -1,4 +1,4 @@
-package com.kroppli.bitclock
+package com.kroppli.bitrainclock
 
 import android.os.Bundle
 import io.flutter.app.FlutterActivity
