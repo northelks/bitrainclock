@@ -9,7 +9,6 @@
     <meta name="author" content="igor.petushkov@kroppli.com">
     <title>BitrainClock</title>
     <link rel="shortcut icon" type="image/x-icon" href="./bitrainclock-icon.png">
-
     <style>
       @font-face {
         font-family: "JetBrainsMonoRegular";
@@ -26,33 +25,50 @@
       }
 
       #main {
-        color: white;
-        font-size: 60px;
         position: absolute;
         left: 20%;
         top: 30%;
+      }
+
+      #logo {
+        color: white;
+        opacity: 0.95;
+        font-size: 60px;
       }
     </style>
   </head>
   <body>
     <div id="main">
-      bitrain<br />
-      clock <br />
-      <br />
-
-      <div style="display: inline-block;">
-        <a target="_blank" href="https://apps.apple.com/us/app/bored-dog/id1483030014">
-          <img height="60" src="./assets/appstore.png">
-        </a>
-      </div>
-      <div style="display: inline-block;">
-        <a target="_blank" href="https://apps.apple.com/us/app/bored-dog/id1483030014">
-          <img height="60" src="./assets/googleplay.png">
-        </a>
-      </div>
-
-     
-      
+      <table>
+        <tr>
+          <td id="logo">
+            bitrain<br />
+            clock <br />
+            <br />
+            <br />
+          </td>
+          <td>
+            <img style="margin-left: 100px;opacity: 0.7;" height="300" src="./assets/screen.png">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a target="_blank" href="https://apps.apple.com/us/app/bored-dog/id1483030014">
+              <img height="60" src="./assets/googleplay.png">
+            </a>
+            <a target="_blank" href="https://apps.apple.com/us/app/bored-dog/id1483030014">
+              <img height="60" src="./assets/appstore.png">
+            </a>
+          </td>
+        </tr>
+        <tr style="height: 70px;">
+          <td>
+            <a style="color: white;opacity: 0.7;" target="_blank" href="https://github.com/kroppli/bitrainclock">GitHub</a>
+            &nbsp;
+            <a style="color: white;opacity: 0.7;" target="_blank" href="./privacy_policy.html">Privacy Policy</a>
+          </td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>
