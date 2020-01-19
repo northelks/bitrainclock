@@ -6,8 +6,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-const LENOVO_SMART_CLOCK_MODE = false;
-
 // size of number
 double bitsize = 15.0;
 // current time
@@ -44,9 +42,10 @@ class _BitrainClockState extends State<BitrainClock> {
         resizeToAvoidBottomPadding: false,
         body: SafeArea(
           child: Center(
-            child: LENOVO_SMART_CLOCK_MODE
-                ? AspectRatio(aspectRatio: 5 / 3, child: BitrainClockWorld())
-                : BitrainClockWorld(),
+            child: AspectRatio(
+              aspectRatio: 5 / 3,
+              child: BitrainClockWorld(),
+            ),
           ),
         ),
       ),
@@ -159,8 +158,9 @@ class _BitrainClockWorldState extends State<BitrainClockWorld> {
     scrh = size.height;
     scrw = size.width;
 
-    // yeah, the magic o_O
+    // yeah, the magic for iOS 8 and 11 o_O
     if (scrw != 667) bitsize = 15.0 * scrw / 667;
+    if (scrw >= 896) bitsize = 13.5;
 
     return Stack(children: [
       Center(
@@ -273,12 +273,11 @@ class BitPointRealTime {
 
     double cntrh = (scrh / 2) - bitsize * 4;
 
-    // yeah, the magic o_O
-    if (!LENOVO_SMART_CLOCK_MODE) {
-      if (scrw >= 640) scrw = scrw * 1.03;
-      if (scrw >= 667) scrw = scrw * 1.05;
-      if (scrw >= 812) scrw = scrw * 0.95;
-    }
+    // yeah, the magic for iOS 8 and 11 o_O
+    if (scrw >= 896) scrw = scrw * 0.74;
+    if (scrw >= 812) scrw = scrw * 0.95;
+    if (scrw >= 667) scrw = scrw * 0.97;
+    if (scrw >= 640) scrw = scrw * 1.03;
 
     return BitPointWorldTime.number(timePointH1, 20, cntrh) +
         BitPointWorldTime.number(timePointH2, 40 + bitsize * 4, cntrh) +
