@@ -6,6 +6,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+const LENOVO_SMART_CLOCK_MODE = false;
+
 // size of number
 double bitsize = 15.0;
 // current time
@@ -42,10 +44,9 @@ class _BitrainClockState extends State<BitrainClock> {
         resizeToAvoidBottomPadding: false,
         body: SafeArea(
           child: Center(
-            child: AspectRatio(
-              aspectRatio: 5 / 3,
-              child: BitrainClockWorld(),
-            ),
+            child: LENOVO_SMART_CLOCK_MODE
+                ? AspectRatio(aspectRatio: 5 / 3, child: BitrainClockWorld())
+                : BitrainClockWorld(),
           ),
         ),
       ),
@@ -108,7 +109,7 @@ class _BitrainClockWorldState extends State<BitrainClockWorld> {
 
     if (world.isEmpty) {
       // build left one column-flow to "show" time number
-      world..addAll(BitPointMatrix.buildFlow(0.0, yi(), 8));
+      world..addAll(BitPointMatrix.buildFlow(5.0, yi(), 8));
       // build time numbers
       world..addAll(BitPointRealTime.build(scrw, scrh));
     }
@@ -272,15 +273,22 @@ class BitPointRealTime {
 
     double cntrh = (scrh / 2) - bitsize * 4;
 
+    // yeah, the magic o_O
+    if (!LENOVO_SMART_CLOCK_MODE) {
+      if (scrw >= 640) scrw = scrw * 1.03;
+      if (scrw >= 667) scrw = scrw * 1.05;
+      if (scrw >= 812) scrw = scrw * 0.95;
+    }
+
     return BitPointWorldTime.number(timePointH1, 20, cntrh) +
         BitPointWorldTime.number(timePointH2, 40 + bitsize * 4, cntrh) +
         // delimiter
-        BitPointWorldTime.delimiter((scrw / 2) - bitsize * (4 + 4.5), cntrh) +
+        BitPointWorldTime.delimiter((scrw / 2) - bitsize * 9, cntrh) +
         //
-        BitPointWorldTime.number(timePointM1, (scrw / 2) - bitsize * (4 + 3), cntrh) +
+        BitPointWorldTime.number(timePointM1, (scrw / 2) - bitsize * 7, cntrh) +
         BitPointWorldTime.number(timePointM2, (scrw / 2) - bitsize, cntrh) +
         // delimiter
-        BitPointWorldTime.delimiter(scrw - (bitsize * 17), cntrh) +
+        BitPointWorldTime.delimiter(scrw - (bitsize * 16.5), cntrh) +
         //
         BitPointWorldTime.number(timePointS1, scrw - ((bitsize * 8) + 100), cntrh) +
         BitPointWorldTime.number(timePointS2, scrw - ((bitsize * 4) + 80), cntrh);
