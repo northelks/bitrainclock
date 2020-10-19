@@ -1,6 +1,6 @@
 # BitrainClock
 
-https://bitrainclock.kroppli.com/
+https://northelks.github.io/bitrainclock/
 
 Interesting clock face UI for FlutterClock contest (https://flutter.dev/clock)
 
